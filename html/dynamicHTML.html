@@ -436,8 +436,8 @@
            그의 험난한 여정</strong></p>
            <p>64세 올드복서 티라노 "박물관에 박제될 위기에 처한 그의 딸을 찾아라"</p>
            <p>자신의 딸과 담배를 사랑하는 공룡 "남궁티라노"<br>
-           어느날 그의 딸 "이동식(47세, 트렌스젠더)"가 백악관에 납치되어 해부 당하고 박물관 박제될 위기에 처하자 64세의 나이로 다시 한 번 자신의 복싱 글러브와 바주카포 등을 매고 딸을 찾으러 간다.</p>
-           <br><p>허나 글러브와 바주카포 하나 줘터질 만큼 호락호락한 백악관이 아니였다. 결국 남궁티라노는 자신의 긍지와도 같은 "글러브"와<br> 환갑잔치때 선물받은 "바주카포"를 끼고 딸을 구할지,<br> 최첨단 무기를 장착하고 "남궁티라노2077"가 될지<br> 선택의 갈림길에
+           어느날 그의 딸 "이동식(47세, 트렌스젠더)"가 백악관에 납치되어 해부 당하고 박물관 박제될 위기에 처하자 64세의 나이로 다시 한 번 자신의 복싱 글러브를 끼고 딸을 찾으러 간다.</p>
+           <br><p>허나 글러브 하나에 줘터질 만큼 호락호락한 백악관이 아니였다. 결국 남궁티라노는 자신의 긍지와도 같은 "글러브"와<br> 환갑잔치때 선물받은 "바주카포"를 끼고 딸을 구할지,<br> 최첨단 무기를 장착하고 "남궁티라노2077"가 될지<br> 선택의 갈림길에
              서는데...</p>
        </div>
    </section>
@@ -483,40 +483,107 @@
            overlay.className = 'overlay';
            document.body.appendChild(overlay);
 
+           let currentImageIndex = 0;
+           let images = [];
+           let timeout;
+
            choiceCards.forEach(card => {
-               let timeout;
                card.addEventListener('mouseenter', () => {
                    timeout = setTimeout(() => {
-                       const imgSrc = card.querySelector('img').src;
-                       const text = card.querySelector('p').innerHTML;
+                       const cardTitle = card.querySelector('p').innerText;
+                       let popupContent = '';
+                       images = [];
+                       currentImageIndex = 0;
 
-                       popup.innerHTML = `<img src="${imgSrc}" alt="Popup Image"><p>${text}</p><button class="close-btn">닫기</button>`;
+                       if (cardTitle.includes('올드복서 선택')) {
+                           images = [
+                               '../image/tyranno_img1.png',
+                               '../image/boxer1.png',
+                               '../image/boxer2.png'
+                           ];
+                           popupContent = `
+                               <img src="${images[currentImageIndex]}" alt="글러브 선택 이미지">
+
+   <p class="detailed-description" style="display: none;">글러브를 낀 티라노는 단순하고 호쾌한 액션이 특징입니다.<br>그는 자신이 챔피언이던 시절의 영광인 "글러브와" <br> 주먹이 통하지 않는 상대에게는<br> 환갑잔치때 선물 받은 "바주카포"를 사용하며 긴 여정길에 오릅니다.<b><br>힘들때는 줄담배를 태우며<br> 체력을 회복하는 니코틴 중독자 티라노와 함께 제2의 전성기를 맞이하세요!</p></b>
+
+                               <button class="prev-btn">이전</button>
+                               <button class="next-btn">다음</button>
+                               <button class="close-btn">닫기</button>
+                           `;
+                       } else if (cardTitle.includes('남궁티라노2077 선택')) {
+                           images = [
+                               '../image/BP5.jpg',
+                               '../image/BP6.jpg'
+                           ];
+                           popupContent = `
+                               <img src="${images[currentImageIndex]}" alt="슈퍼남궁티라노 선택 이미지">
+<p class="detailed-description" style="display: none;">딸을 구하는데 긍지는 중요하지 않습니다.<br>그는 자신의 영광과 인생이 담긴 글러브를 중고로 팔아
+   최첨단 무기를 장착했습니다.<br> 기계가 되었어도 진성 꼴초 답게 니코틴을 동력으로 삼아 움직이며,<br>
+  불법 싸제 튜닝도 마다하지 않고 자신만의 무기를 커스터마이징해 적을 쓸어버립니다.<b><br>전기톱에 레이저스코프를 장착 할 수도, 야구배트에 머신건을 달 수도 있습니다. 야매 튜닝의 끝판왕이 되보세요 !</b></p>
+
+                               <button class="prev-btn">이전</button>
+                               <button class="next-btn">다음</button>
+                               <button class="close-btn">닫기</button>
+                           `;
+                       }
+
+                       popup.innerHTML = popupContent;
+                       let prevBtn = popup.querySelector('.prev-btn');
+                       let nextBtn = popup.querySelector('.next-btn');
+                       prevBtn.style.display = 'inline-block';
+                       nextBtn.style.display = 'inline-block';
                        popup.style.display = 'block';
                        overlay.style.display = 'block';
+                       const detailedDescription = popup.querySelector('.detailed-description');
+                       if (detailedDescription) {
+                           detailedDescription.style.display = 'block';
+                       }
 
                        const closeBtn = popup.querySelector('.close-btn');
-                       closeBtn.addEventListener('click', () => {
-                           popup.style.display = 'none';
-                           overlay.style.display = 'none';
+                       prevBtn = popup.querySelector('.prev-btn');
+                       nextBtn = popup.querySelector('.next-btn');
+                       closeBtn.removeEventListener('click', closePopup);
+                       prevBtn.removeEventListener('click', () => changeImage(-1));
+                       nextBtn.removeEventListener('click', () => changeImage(1));
+
+                       closeBtn.addEventListener('click', closePopup);
+                       prevBtn.addEventListener('click', () => changeImage(-1));
+                       nextBtn.addEventListener('click', () => {
+                           changeImage(1);
+                           popup.style.display = 'block';
+                           overlay.style.display = 'block';
                        });
-                   }, 1000); // 2초 후 팝업 표시
+                   }, 2000); // 2초 후 팝업 표시
                });
 
                card.addEventListener('mouseleave', () => {
                    clearTimeout(timeout);
                });
-
-               overlay.addEventListener('click', () => {
-                   popup.style.display = 'none';
-                   overlay.style.display = 'none';
-               });
            });
 
-           popup.addEventListener('mouseleave', () => {
+           function changeImage(direction) {
+               currentImageIndex = (currentImageIndex + direction + images.length) % images.length;
+               const imgElement = popup.querySelector('img');
+               imgElement.style.width = '100%';
+               imgElement.style.height = 'auto';
+               imgElement.src = images[currentImageIndex];
+           }
+
+           function closePopup() {
                popup.style.display = 'none';
                overlay.style.display = 'none';
+           }
+
+           overlay.addEventListener('click', closePopup);
+           let mouseLeaveTimeout;
+           popup.addEventListener('mouseleave', () => {
+               mouseLeaveTimeout = setTimeout(closePopup, 3000);
+           });
+           popup.addEventListener('mouseenter', () => {
+               clearTimeout(mouseLeaveTimeout);
            });
        });
    </script>
+
 </body>
 </html>
