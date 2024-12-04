@@ -217,6 +217,7 @@
         .project-section {
             padding: 50px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             gap: 30px;
             background-color: #111;
@@ -225,7 +226,8 @@
         }
 
         .project-section img {
-            width: 400px;
+            width: 100%;
+            max-width: 400px;
             height: auto;
             border-radius: 10px;
         }
@@ -249,7 +251,7 @@
         .choice-section {
             padding: 50px;
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 두 개의 카드가 가로로 나란히 배치되도록 설정 */
+            grid-template-columns: 1fr; /* 기본적으로 세로로 배치 */
             gap: 30px;
             background-color: #111;
             margin: 50px auto;
@@ -281,6 +283,34 @@
         .choice-card p {
             font-size: 1em;
             margin-bottom: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .choice-section {
+                grid-template-columns: repeat(2, 1fr); /* 화면이 넓어지면 가로로 배치 */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-text h1, .section h2 {
+                font-size: 2.5em;
+            }
+
+            .hero-text p, .section p {
+                font-size: 1.2em;
+            }
+
+            .team-content {
+                grid-template-columns: 1fr;
+            }
+
+            .team-card {
+                width: 90%;
+            }
+
+            .project-section, .choice-section {
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -378,17 +408,14 @@
     </section>
     <section class="choice-section visible">
         <div class="choice-card">
-            <img src="../image/tyranno_img1.png" alt="글러브 선택 이미지">
+            <img src="../image/glove_choice.png" alt="글러브 선택 이미지">
             <h3>글러브 선택</h3>
-            <b><p>올드복서 티라노의 긍지를 지키며 글러브를 선택하여 딸을 구하러 가는 길.</p></b>
-            <br>
-            <p>스타일리쉬하고 빠른 전투가 특징입니다.<br>
-            간단한 조작으로 강력한 공격을 하며,<br> 주먹이 안 통할때는 바주카를 꺼내는 졸렬함도 갖추고 있습니다.</p>
+            <p>올드복서 티라노의 긍지를 지키며 글러브를 선택하여 딸을 구하러 가는 길.</p>
         </div>
         <div class="choice-card">
-            <img src="../image/BP5.jpg" alt="슈퍼남궁티라노 이미지">
-            <h3>남궁티라노2077</h3>
-            <b><p>최첨단 무기를 장착하고 슈퍼남궁티라노가 되어 백악관을 습격하는 길.</p><b>
+            <img src="../image/super_tyranno.png" alt="슈퍼남궁티라노 이미지">
+            <h3>슈퍼남궁티라노</h3>
+            <p>최첨단 무기를 장착하고 슈퍼남궁티라노가 되어 백악관을 습격하는 길.</p>
         </div>
     </section>
     <section class="section gateway">
