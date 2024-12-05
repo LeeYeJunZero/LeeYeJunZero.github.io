@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #signUpForm, #postList {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            margin-bottom: 20px;
+            overflow-y: auto;
+        }
+
+        #postList {
+            max-height: 400px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        #signUpButton {
+            background-color: #1eabdd;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        #signUpButton:hover {
+            background-color: #45a049;
+        }
+
+        .commentSection {
+            margin-top: 10px;
+        }
+
+        .post {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .passwordPrompt {
+            display: none;
+            margin-top: 5px;
+        }
+
+        .commentButton {
+            background-color: #1eabdd;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 5px;
+            width: 100%;
+        }
+
+        .commentButton:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="signUpForm">
+        <input type="text" id="uidInput" placeholder="학번">
+        <input type="text" id="usernameInput" placeholder="이름">
+        <textarea name="message" id="bodyInput" rows="5" placeholder="Message"></textarea>
+        <button id="signUpButton">Sign Up</button>
+    </div>
+
+    <div id="postList"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+        import { getDatabase, ref, child, push, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAi94hFDujfW8dQplYGndyjDL6XWipmPZw",
+          authDomain: "newyj-6cde0.firebaseapp.com",
+          databaseURL: "https://newyj-6cde0-default-rtdb.firebaseio.com",
+          projectId: "newyj-6cde0",
+          storageBucket: "newyj-6cde0.firebasestorage.app",
+          messagingSenderId: "285996817021",
+          appId: "1:285996817021:web:82a48d0dad74033d48af14",
+          measurementId: "G-QS0JFQBW3B"
+        };
+        import { initializeApp } from "firebase/app";
+  import { getAnalytics } from "firebase/analytics";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const database = getDatabase(app);
+
+        function writeNewPost(uid, username, body) {
+            const postData = {
+                author: username,
+                uid: uid,
+                body: body,
+                comments: {}
+            };
+            const newPostKey = push(child(ref(database), 'posts')).key;
+            const updates = {};
+            updates['/posts/' + newPostKey] = postData;
+
+            return update(ref(database), updates);
+        }
+                //대응되는 정보에 따라서 매칭되는 학번, 이름, 메시지 등의 정보를 DB와 연동해서 입력하고 받아온다
+        document.getElementById('signUpButton').addEventListener('click', () => {
+            const uid = document.getElementById('uidInput').value.trim();
+            const username = document.getElementById('usernameInput').value.trim();
+            const body = document.getElementById('bodyInput').value.trim();
+
+            if (!uid || !username || !body) {
+                alert('학번, 이름, 메시지를 모두 입력하세요.');
+                return;
+            }
+
+            writeNewPost(uid, username, body);
+            alert('전송완료');
+        });
+
+        function fetchPosts() {
+            const postsRef = ref(database, 'posts/');
+
+            onValue(postsRef, (snapshot) => {
+                const posts = snapshot.val();
+                const postList = document.getElementById('postList');
+                postList.innerHTML = '';
+
+                const postArray = Object.entries(posts).reverse().slice(0, 10); // 최신글 10개만 가져오기
+
+                postArray.forEach(([key, post]) => {
+                    const postElement = document.createElement('div');
+                    postElement.className = 'post';
+                    postElement.innerHTML = `<strong>${post.author} (${post.uid}):</strong> ${post.body} <br>`;
+
+                    const commentInput = document.createElement('input');
+                    commentInput.type = 'text';
+                    commentInput.placeholder = '댓글 입력';
+                    postElement.appendChild(commentInput);
+
+                    const passwordPrompt = document.createElement('input');
+                    passwordPrompt.type = 'password';
+                    passwordPrompt.placeholder = '비밀번호 입력';
+                    passwordPrompt.className = 'passwordPrompt';
+                    postElement.appendChild(passwordPrompt);
+
+                    const commentButton = document.createElement('button');
+                    commentButton.className = 'commentButton';
+                    commentButton.textContent = '댓글 추가';
+                    postElement.appendChild(commentButton);
+
+                    commentInput.addEventListener('focus', () => {
+                        passwordPrompt.style.display = 'inline'; // 비밀번호 입력란 표시
+                    });
+
+                    passwordPrompt.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter') {
+                            if (passwordPrompt.value === '4567') {
+                                passwordPrompt.style.display = 'none'; // 비밀번호 입력란 숨김
+                                commentInput.style.display = 'inline'; // 댓글 입력란 표시
+                                commentInput.focus(); // 댓글 입력란 포커스
+                            } else {
+                                alert('비밀번호가 틀렸습니다.');
+                            }
+                            event.preventDefault();
+                        }
+                    });
+
+                    commentButton.addEventListener('click', () => {
+                        const comment = commentInput.value;
+                        if (comment && passwordPrompt.value === '4567') {
+                            addComment(key, comment);
+                            commentInput.value = ''; // 입력란 초기화
+                        } else if (!comment) {
+                            alert('댓글을 입력하세요.');
+                        } else {
+                            alert('비밀번호가 필요합니다.');
+                        }
+                    });
+
+                    const commentList = document.createElement('div');
+                    commentList.className = 'commentSection';
+                    postElement.appendChild(commentList);
+                    displayComments(post.comments, commentList);
+
+                    postList.appendChild(postElement);
+                });
+            });
+        }
+
+        function addComment(postId, comment) {
+            const commentsRef = ref(database, `posts/${postId}/comments`);
+            const newCommentKey = push(commentsRef).key;
+
+            update(ref(database), {
+                [`/posts/${postId}/comments/${newCommentKey}`]: comment
+            });
+        }
+
+        function displayComments(comments, commentList) {
+            commentList.innerHTML = '';
+
+            for (const key in comments) {
+                if (comments.hasOwnProperty(key)) {
+                    const comment = comments[key];
+                    const commentElement = document.createElement('div');
+                    commentElement.textContent = comment;
+                    commentList.appendChild(commentElement);
+                }
+            }
+        }
+
+        fetchPosts();
+    </script>
+</body>
+</html>
